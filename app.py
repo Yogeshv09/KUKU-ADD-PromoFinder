@@ -156,7 +156,7 @@ table.pt td.c{color:#d9d9d9;}
 .line .ts{font-family:'Outfit','Space Grotesk',Inter,sans-serif;color:#d9d9d9;font-size:.78rem;padding-top:1px;}
 .line .sp{color:var(--lime);font-weight:700;}
 .line .act{color:var(--muted);font-style:italic;}
-.ok{color:#2ecc71;font-weight:800;} .bad{color:#ff4d55;font-weight:800;}
+.ok{color:#ed1c24;font-weight:800;} .bad{color:#ff4d55;font-weight:800;}
 .foot{text-align:center;color:#5c5c5c;font-size:.76rem;margin-top:34px;}
 
 /* ---- widgets ---- */
@@ -442,7 +442,7 @@ with st.sidebar:
                     unsafe_allow_html=True)
         if not done:
             st.caption("Mark clips in the Promos & review tab and they land here.")
-        colour = {"✅": ("#2ecc71", "rgba(46,204,113,.15)"), "✂": ("#f5b942", "rgba(245,185,66,.15)"),
+        colour = {"✅": ("#ffffff", "rgba(255,255,255,.12)"), "✂": ("#f5b942", "rgba(245,185,66,.15)"),
                   "❌": ("#ff4d55", "rgba(255,77,85,.15)")}
         html_done = []
         for r in done:
@@ -685,7 +685,7 @@ with t4:
     if ic:
         st.dataframe(pd.DataFrame([{"Check": names.get(k, k), "Count": v} for k, v in ic.items()]), hide_index=True, width="stretch")
     else:
-        st.success("No data-quality issues found.")
+        st.markdown('<div class="box" style="padding:14px 18px">✔ No data-quality issues found.</div>', unsafe_allow_html=True)
     with st.expander("Per-episode stats"):
         st.dataframe(pd.DataFrame(audit["per_episode"]), hide_index=True, width="stretch")
 
@@ -708,7 +708,7 @@ with t5:
     reviewed = review[review.editor_verdict != "Not reviewed"]
     if len(reviewed):
         ok = reviewed.editor_verdict.str.contains("Post").sum()
-        st.success(f"Reviewed {len(reviewed)} promos · {ok} marked 'Post it' → precision {ok / len(reviewed):.0%}")
+        st.markdown(f'<div class="box" style="padding:14px 18px">Reviewed {len(reviewed)} promos · {ok} marked "Post it" → precision {ok / len(reviewed):.0%}</div>', unsafe_allow_html=True)
     st.caption("Exports contain short screenplay quotes: share them only with the content owner.")
 
 st.markdown('<div class="foot">PROMO FINDER STUDIO · transparent, reproducible ranking</div>', unsafe_allow_html=True)
