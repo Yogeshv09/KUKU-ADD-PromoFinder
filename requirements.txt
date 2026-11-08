@@ -1,0 +1,4 @@
+# core pipeline: Python 3.10+ standard library only
+# optional UI
+streamlit>=1.30
+pandas>=2.0
