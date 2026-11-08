@@ -6,7 +6,6 @@ No screenplay is stored: every run uses a temporary folder that is deleted after
 """
 import html
 import io
-import json
 import os
 import re
 import tempfile
@@ -22,89 +21,124 @@ from promo_finder.llm import PRESETS
 st.set_page_config(page_title="Promo Finder Studio · Kuku", page_icon="🎬", layout="wide",
                    initial_sidebar_state="expanded")
 
-# --------------------------------------------------------------------------- styling
+ACCENT, GREEN = "#7c5cff", "#3ddc97"
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-:root{--bg:#090c17;--panel:#11162a;--panel2:#161d36;--line:#262f4d;--ink:#eef1fb;--muted:#9aa4c2;
-      --pink:#10e39a;--amber:#c6f36b;--teal:#5cc8ff;--grad:linear-gradient(100deg,#10e39a,#c6f36b);}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#1d1e25;--panel:#272832;--panel2:#2e2f3a;--line:#363845;--ink:#ecedf3;--muted:#8b8d9e;
+      --accent:#7c5cff;--accent2:#9b85ff;--green:#3ddc97;}
 html,body,[class*="css"],.stApp{font-family:'Inter',sans-serif;}
-.stApp{background:radial-gradient(1100px 500px at 85% -10%,rgba(16,227,154,.14),transparent 60%),
-       radial-gradient(900px 500px at -10% 10%,rgba(92,200,255,.07),transparent 60%),var(--bg);color:var(--ink);}
-[data-testid="stSidebar"]{background:#0d1222;border-right:1px solid var(--line);}
-[data-testid="stHeader"]{background:rgba(9,12,23,.7);backdrop-filter:blur(8px);}
-.block-container{padding-top:1.6rem;max-width:1320px;}
-h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;}
+.stApp{background:var(--bg);color:var(--ink);}
+[data-testid="stHeader"]{background:transparent;}
+.block-container{padding-top:1.4rem;max-width:1280px;}
 #MainMenu,footer{visibility:hidden;}
-.hero{position:relative;overflow:hidden;padding:34px 38px;border-radius:24px;border:1px solid #1f3d33;
-      background:linear-gradient(120deg,#0f241d 0%,#10192b 55%,#0f2230 100%);margin-bottom:22px;}
-.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
-      background:var(--grad);opacity:.18;filter:blur(30px);}
-.hero .eyebrow{font-size:.72rem;letter-spacing:.22em;font-weight:800;text-transform:uppercase;
-      background:var(--grad);-webkit-background-clip:text;color:transparent;}
-.hero h1{font-size:2.9rem;line-height:1.05;margin:10px 0 10px;color:#fff;}
-.hero h1 span{background:var(--grad);-webkit-background-clip:text;color:transparent;}
-.hero p{color:#c3cae0;font-size:1.02rem;max-width:760px;line-height:1.6;margin:0;}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
-.chip{font-size:.74rem;font-weight:700;border:1px solid #3a4468;border-radius:999px;padding:6px 12px;color:#d6dcf0;
-      background:rgba(255,255,255,.03);}
-.kicker{color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-size:.72rem;font-weight:800;margin:6px 0 4px;}
-.metric{border:1px solid var(--line);background:linear-gradient(160deg,var(--panel2),var(--panel));border-radius:18px;
-        padding:16px 18px;min-height:104px;}
-.metric .l{color:var(--muted);font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
-.metric .v{font-family:'Space Grotesk';font-size:2rem;font-weight:700;color:#fff;margin-top:4px;line-height:1.1;}
-.metric .s{color:#7f89a8;font-size:.75rem;margin-top:2px;}
-.card{position:relative;border:1px solid var(--line);border-radius:20px;padding:20px 22px 16px 92px;margin-bottom:12px;
-      background:linear-gradient(110deg,#161c35,#10152a);}
-.card.top{border-color:#1f5a44;box-shadow:0 0 0 1px rgba(16,227,154,.15),0 10px 40px -20px rgba(16,227,154,.45);}
-.rank{position:absolute;left:20px;top:18px;width:54px;height:54px;border-radius:16px;display:flex;align-items:center;
-      justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:1.45rem;color:#04130d;background:var(--grad);}
-.rank.dim{background:#232b4a;color:#cfd6ee;}
-.meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
-.tag{font-size:.72rem;font-weight:700;border-radius:8px;padding:4px 9px;background:#1f2745;color:#cdd5f0;border:1px solid #2c3660;}
-.tag.time{background:rgba(92,200,255,.1);color:#a8e1ff;border-color:#24527a;}
-.tag.cat{background:rgba(198,243,107,.1);color:#dcf7a6;border-color:#4f6b25;}
-.tag.score{background:rgba(16,227,154,.12);color:#8cf5cb;border-color:#1f6b4f;}
-.beat{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:start;margin:6px 0;}
-.beat .lab{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 0;border-radius:7px;
-      text-align:center;}
-.beat .lab.h{background:rgba(16,227,154,.15);color:#7ef2c4;}
-.beat .lab.c{background:rgba(198,243,107,.14);color:#d7f59a;}
-.beat .txt{color:#f2f4fb;font-size:.98rem;line-height:1.45;}
-.why{color:#aab3cf;font-size:.86rem;margin-top:8px;line-height:1.5;}
-.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;}
-.bar .n{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);font-weight:700;margin-bottom:4px;}
-.bar .t{height:7px;border-radius:9px;background:#222a48;overflow:hidden;}
-.bar .f{height:100%;border-radius:9px;background:var(--grad);}
-.script{border:1px solid var(--line);border-radius:14px;background:#0c1020;padding:10px 14px;}
-.line{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:4px 0;border-bottom:1px dashed #1c2340;font-size:.88rem;}
+h1,h2,h3{font-weight:800;letter-spacing:-.01em;color:#fff;}
+
+/* ---- sidebar = purple icon rail + list panel ---- */
+[data-testid="stSidebar"]{background:linear-gradient(90deg,var(--accent) 0 64px,#25262f 64px)!important;border-right:0;width:360px!important;min-width:360px!important;}
+[data-testid="stSidebarUserContent"]{position:relative;padding-left:84px!important;padding-right:18px!important;}
+.rail{position:fixed;left:0;top:64px;width:64px;display:flex;flex-direction:column;align-items:center;gap:28px;z-index:1000;}
+[data-testid="stSidebar"][aria-expanded="false"] .rail{display:none;}
+.rail span{color:rgba(255,255,255,.75);font-size:1.15rem;line-height:1;cursor:default;}
+.rail span.on{color:#fff;}
+.rail .badge{position:relative;}
+.rail .badge:after{content:"";position:absolute;right:-6px;top:-4px;width:8px;height:8px;border-radius:50%;background:#ff6b6b;}
+.rail .avatar{margin-top:30px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);
+      display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;}
+.ptitle{font-size:1.05rem;font-weight:800;color:#fff;margin:2px 0 14px;}
+.sec{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;}
+.task{background:var(--panel2);border-radius:12px;padding:12px 13px;margin-bottom:9px;}
+.task.done{background:#20212a;}
+.task .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.task .t{font-size:.82rem;font-weight:800;color:#fff;}
+.task .d{font-size:.66rem;color:var(--muted);white-space:nowrap;}
+.task .x{font-size:.74rem;color:#a3a5b5;line-height:1.45;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;
+      -webkit-box-orient:vertical;overflow:hidden;}
+.task .v{font-size:.66rem;font-weight:800;margin-top:6px;}
+[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] span{color:#d9dae4;}
+[data-testid="stSidebar"] [data-testid="stExpander"] details{background:var(--panel2);border:0;border-radius:12px;}
+
+/* ---- main cards ---- */
+.lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:4px 0 10px;}
+.box{background:var(--panel);border-radius:16px;padding:20px 22px;}
+.ov{display:grid;grid-template-columns:1.3fr 2fr;gap:24px;align-items:end;}
+.ov .k{font-size:.72rem;color:var(--muted);font-weight:600;}
+.ov .big{font-size:2.2rem;font-weight:800;color:#fff;line-height:1.1;margin-top:2px;}
+.ov .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.ov .stats div{font-size:.7rem;color:var(--muted);font-weight:600;}
+.ov .stats b{display:block;font-size:1.05rem;color:#fff;font-weight:800;margin-top:2px;}
+.prog{display:flex;gap:10px;margin-top:18px;height:46px;}
+.prog .fill{background:var(--accent);border-radius:10px;display:flex;align-items:center;padding:0 16px;font-weight:800;
+      font-size:1.15rem;color:#fff;min-width:74px;white-space:nowrap;}
+.prog .rest{flex:1;background:#353644;border-radius:10px;display:flex;align-items:center;padding:0 16px;font-size:.78rem;
+      color:var(--muted);font-weight:600;}
+table.pt{width:100%;border-collapse:collapse;border:none!important;}
+table.pt tr,table.pt th,table.pt td{border:none!important;background:transparent!important;}
+table.pt th{font-size:.66rem;color:var(--muted);font-weight:700;text-align:left;padding:0 6px 10px;}
+table.pt td{font-size:.82rem;color:#fff;font-weight:700;padding:11px 6px;border-top:1px solid var(--line)!important;vertical-align:middle;}
+table.pt td.m{color:#a3a5b5;font-weight:600;}
+table.pt td.g{color:var(--green);font-weight:800;}
+.mini{width:70px;height:6px;background:#3a3b49;border-radius:6px;overflow:hidden;}
+.mini i{display:block;height:100%;background:var(--accent);border-radius:6px;}
+.cal .head{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;font-weight:800;color:#fff;margin-bottom:10px;}
+.cal .head span{color:var(--muted);font-weight:600;}
+.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.cal .c{height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:#fff;}
+.cal .c.n{color:#5c5e6e;font-weight:600;}
+.cal .c.s{background:var(--accent);}
+.cal .leg{display:flex;gap:12px;margin-top:12px;font-size:.66rem;color:var(--muted);}
+.cal .leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+
+/* banner (keyed container) */
+.st-key-banner{background:var(--accent);border-radius:16px;padding:22px 26px!important;position:relative;overflow:hidden;}
+.st-key-banner:before{content:"";position:absolute;right:-90px;bottom:-140px;width:420px;height:300px;border-radius:50%;
+      background:rgba(29,30,37,.35);}
+.st-key-banner p{color:#fff!important;font-weight:800;font-size:1.02rem;line-height:1.45;margin:0;}
+.st-key-banner .stButton>button:not([kind="primary"]),.st-key-banner .stDownloadButton>button:not([kind="primary"]){background:#a594ff!important;color:#fff!important;border:0!important;font-weight:800!important;
+      border-radius:10px!important;}
+[data-testid="stSidebar"] .stButton>button:not([kind="primary"]){border:1px solid #474959!important;}
+
+/* promo cards */
+.card{position:relative;background:var(--panel);border-radius:16px;padding:18px 20px 16px 84px;margin-bottom:10px;}
+.rank{position:absolute;left:20px;top:18px;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-weight:800;font-size:1.2rem;color:#fff;background:var(--accent);}
+.rank.dim{background:#3a3b49;}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.tag{font-size:.68rem;font-weight:700;border-radius:7px;padding:4px 8px;background:#33343f;color:#c9cad6;}
+.tag.time{background:rgba(124,92,255,.16);color:#c3b7ff;}
+.tag.score{background:rgba(61,220,151,.13);color:var(--green);}
+.beat{display:grid;grid-template-columns:70px 1fr;gap:10px;align-items:start;margin:6px 0;}
+.beat .lab{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 0;border-radius:6px;text-align:center;}
+.beat .lab.h{background:rgba(124,92,255,.18);color:#c3b7ff;}
+.beat .lab.c{background:rgba(61,220,151,.13);color:var(--green);}
+.beat .txt{color:#f2f3f8;font-size:.93rem;line-height:1.45;font-weight:600;}
+.why{color:#a3a5b5;font-size:.82rem;margin-top:8px;line-height:1.5;}
+.bars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:12px;}
+.bar .n{display:flex;justify-content:space-between;font-size:.66rem;color:var(--muted);font-weight:700;margin-bottom:4px;}
+.bar .t{height:6px;border-radius:6px;background:#3a3b49;overflow:hidden;}
+.bar .f{height:100%;border-radius:6px;background:var(--accent);}
+.script{background:#202129;border-radius:12px;padding:8px 14px;}
+.line{display:grid;grid-template-columns:104px 1fr;gap:10px;padding:5px 0;border-bottom:1px solid #2c2d38;font-size:.85rem;}
 .line:last-child{border-bottom:0;}
-.line .ts{font-family:'Space Grotesk';color:#a8e1ff;font-size:.78rem;padding-top:1px;}
-.line .sp{color:#c6f36b;font-weight:700;}
-.line .act{color:#9aa4c2;font-style:italic;}
-.ok{color:#10e39a;font-weight:700;} .bad{color:#ff6b8f;font-weight:700;}
-.empty{border:1px dashed #33406a;border-radius:20px;padding:26px;background:rgba(255,255,255,.02);}
-.step{border:1px solid var(--line);border-radius:18px;padding:18px;background:var(--panel);height:100%;}
-.step b{font-family:'Space Grotesk';font-size:1.05rem;color:#fff;} .step p{color:var(--muted);font-size:.86rem;margin:.4rem 0 0;}
-.step .num{font-family:'Space Grotesk';font-size:.8rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;color:transparent;}
-.foot{text-align:center;color:#69728f;font-size:.78rem;margin-top:36px;}
-[data-testid="stTabs"] button p{font-weight:700;font-size:.95rem;}
-.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{background:var(--grad)!important;color:#04130d!important;
-      border:0!important;font-weight:800!important;border-radius:12px!important;}
-.stButton>button,.stDownloadButton>button{border-radius:12px!important;}
-/* dark fallbacks (in case .streamlit/config.toml is missing) */
-[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,[data-testid="stSidebar"] span,[data-testid="stSidebar"] h2,
-[data-testid="stWidgetLabel"] p,[data-testid="stMarkdownContainer"] h3,[data-testid="stCaptionContainer"]{color:#dfe4f5;}
-[data-testid="stCaptionContainer"]{color:#8d97b5!important;}
-.stButton>button:not([kind="primary"]),.stDownloadButton>button:not([kind="primary"]){background:#161d36!important;
-      color:#e9edf8!important;border:1px solid #2f3a62!important;}
-[data-testid="stFileUploaderDropzone"]{background:#121831!important;border:1px dashed #3a4570!important;}
-[data-testid="stExpander"] details{background:#0f1428;border:1px solid #262f4d;border-radius:14px;}
+.line .ts{color:#b3a6ff;font-size:.74rem;font-weight:700;padding-top:2px;}
+.line .sp{color:#fff;font-weight:800;}
+.line .act{color:var(--muted);font-style:italic;}
+.ok{color:var(--green);font-weight:800;} .bad{color:#ff6b8a;font-weight:800;}
+.foot{text-align:center;color:#5c5e6e;font-size:.74rem;margin-top:34px;}
+
+/* widgets */
+[data-testid="stTabs"] button p{font-weight:700;font-size:.9rem;}
+.stButton>button,.stDownloadButton>button{border-radius:10px!important;font-weight:700!important;}
+.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{background:var(--accent)!important;color:#fff!important;border:0!important;}
+.stButton>button:not([kind="primary"]),.stDownloadButton>button:not([kind="primary"]){background:var(--panel2)!important;
+      color:#e9e9f2!important;border:0!important;}
+[data-testid="stFileUploaderDropzone"]{background:var(--panel2)!important;border:1px dashed #4a4c5c!important;border-radius:12px!important;}
+[data-testid="stExpander"] details{background:var(--panel);border:0;border-radius:14px;}
+[data-testid="stCaptionContainer"]{color:var(--muted)!important;}
 </style>
 """, unsafe_allow_html=True)
 
 E = lambda x: html.escape(str(x), quote=True)
-
 
 # --------------------------------------------------------------------------- demo show (fictional, safe to share)
 def _ts(t):
@@ -197,10 +231,15 @@ def demo_zip_bytes() -> bytes:
             z.writestr(name, txt)
     return buf.getvalue()
 
-
 # --------------------------------------------------------------------------- helpers
 def seg_label(r, sep=" · "):
     return " + ".join(f"E{s['episode']}{sep}{s['start']}–{s['end']}" for s in r["segments"])
+
+
+def short_seg(r):
+    s0 = r["segments"][0]
+    extra = f" +{len(r['segments']) - 1}" if len(r["segments"]) > 1 else ""
+    return f"E{s0['episode']} · {s0['start'][:5]}–{s0['end'][:5]}{extra}"
 
 
 def score(r, k):
@@ -221,15 +260,15 @@ def card(r, slot=None):
     num = slot if slot else r["rank"]
     top = slot is not None or r["rank"] <= 3
     tags = [f'<span class="tag time">◷ {E(seg_label(r))}</span>', f'<span class="tag">{r["duration_s"]:.0f}s</span>',
-            f'<span class="tag cat">{E(r["category"])}</span>', f'<span class="tag">{E(r["type"])}</span>',
+            f'<span class="tag">{E(r["category"])}</span>', f'<span class="tag">{E(r["type"])}</span>',
             f'<span class="tag score">★ {r["scores"]["total"]:.2f}</span>']
     if r.get("described_by") and r["described_by"] != "rules":
         tags.append(f'<span class="tag">AI: {E(r["described_by"])}</span>')
-    return (f'<div class="card {"top" if top else ""}"><div class="rank {"" if top else "dim"}">{num}</div>'
+    return (f'<div class="card"><div class="rank {"" if top else "dim"}">{num}</div>'
             f'<div class="meta">{"".join(tags)}</div>'
-            f'<div class="beat"><div class="lab h">▶ Hook</div><div class="txt">{E(r["hook"])}</div></div>'
-            f'<div class="beat"><div class="lab c">⏸ Cliff</div><div class="txt">{E(r["cliffhanger"])}</div></div>'
-            f'<div class="why">💡 {E(r["why"])}</div>{bars(r)}</div>')
+            f'<div class="beat"><div class="lab h">Hook</div><div class="txt">{E(r["hook"])}</div></div>'
+            f'<div class="beat"><div class="lab c">Cliff</div><div class="txt">{E(r["cliffhanger"])}</div></div>'
+            f'<div class="why">{E(r["why"])}</div>{bars(r)}</div>')
 
 
 LINE_RE = re.compile(r"^(E\d+) (\d\d:\d\d\.\d\d) (.*)$")
@@ -253,9 +292,8 @@ def script_html(lines):
     return '<div class="script">' + "".join(rows) + "</div>"
 
 
-def metric(label, value, sub=""):
-    st.markdown(f'<div class="metric"><div class="l">{E(label)}</div><div class="v">{E(value)}</div>'
-                f'<div class="s">{E(sub)}</div></div>', unsafe_allow_html=True)
+def verdict(rank):
+    return st.session_state.get(f"v_{rank}", "Not reviewed")
 
 
 def write_inputs(uploads, folder: Path):
@@ -311,41 +349,69 @@ def analyse(uploads, label, provider, model, key, judge_top, stitch, full_eval):
     meta["source"] = label
     return {"recs": recs, "ev": ev, "audit": audit, "meta": meta, "files": files}
 
+# --------------------------------------------------------------------------- run triggers (callbacks run before the rerun)
+def _want_demo():
+    st.session_state["_action"] = "demo"
 
-# --------------------------------------------------------------------------- sidebar
+
+def _want_run():
+    st.session_state["_action"] = "run"
+
+
+res = st.session_state.get("res")
+
+# --------------------------------------------------------------------------- sidebar: rail + panel
 with st.sidebar:
-    st.markdown("## 🎬 Promo Finder Studio")
-    st.caption("SCREENPLAY → RANKED PROMO CLIPS")
-    st.markdown('<div class="kicker">01 · Input</div>', unsafe_allow_html=True)
-    uploads = st.file_uploader("Screenplays (.zip or .txt files)", type=["zip", "txt"], accept_multiple_files=True)
-    go = st.button("⚡ Find promos", type="primary", disabled=not uploads, width="stretch")
-    demo = st.button("▶ Try the demo show (fictional)", width="stretch")
+    st.markdown('<div class="rail"><span class="on" title="Menu">☰</span><span title="Home">⌂</span>'
+                '<span class="badge" title="Queue">✉</span><span title="Top promos">★</span><span title="Promo map">▦</span>'
+                '<span title="Quality">▮▮</span><span title="Settings">⚙</span><div class="avatar">PF</div></div>',
+                unsafe_allow_html=True)
+    st.markdown('<div class="ptitle">Promo Finder</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="kicker">02 · AI judge (optional)</div>', unsafe_allow_html=True)
-    choice = st.selectbox("Model", ["Rules only (free, no key)", "gemini", "groq", "openrouter", "openai", "anthropic"])
-    provider = None if choice.startswith("Rules") else choice
-    model = key = ""
-    judge_top = 20
-    if provider:
-        default_model = "gemini-flash-latest" if provider == "gemini" else PRESETS[provider][2]
-        model = st.text_input("Model name", value=default_model)
-        env_name = PRESETS[provider][3]
-        has_secret = bool(env_name and os.getenv(env_name))
-        key = st.text_input("API key", type="password",
-                            placeholder="saved in app secrets" if has_secret else "paste key, then press Enter",
-                            help="Used for this run only, never stored.")
-        judge_top = st.slider("Promos the AI re-scores", 5, 60, 15, step=5,
-                              help="Free tiers allow a few calls per minute: ~6 s per promo.")
-    st.markdown('<div class="kicker">03 · Options</div>', unsafe_allow_html=True)
-    stitch = st.toggle("Allow 2-segment (stitched) promos", value=True)
-    full_eval = st.toggle("Run stability test (+~60 s)", value=False)
-    if st.button("↺ Clear results", width="stretch"):
-        for k in list(st.session_state):
-            del st.session_state[k]
-        st.rerun()
-    st.divider()
-    st.caption("🔒 Files are processed in a temporary folder and deleted after each run. "
-               "Upload only scripts you are allowed to process.")
+    with st.expander("New run" if res else "Start a run", expanded=not res):
+        uploads = st.file_uploader("Screenplays (.zip or .txt)", type=["zip", "txt"], accept_multiple_files=True)
+        st.button("Find promos", type="primary", disabled=not uploads, width="stretch", on_click=_want_run)
+        st.button("Try the demo show", width="stretch", on_click=_want_demo, key="demo_side")
+        choice = st.selectbox("AI judge", ["Rules only (free, no key)", "gemini", "groq", "openrouter", "openai", "anthropic"])
+        provider = None if choice.startswith("Rules") else choice
+        model = key = ""
+        judge_top = 20
+        if provider:
+            model = st.text_input("Model", value="gemini-flash-latest" if provider == "gemini" else PRESETS[provider][2])
+            env_name = PRESETS[provider][3]
+            has_secret = bool(env_name and os.getenv(env_name))
+            key = st.text_input("API key", type="password",
+                                placeholder="saved in app secrets" if has_secret else "paste key, then press Enter")
+            judge_top = st.slider("Promos the AI re-scores", 5, 60, 15, step=5)
+        stitch = st.toggle("Allow stitched promos", value=True)
+        full_eval = st.toggle("Stability test (+~60 s)", value=False)
+
+    if res:
+        recs_ = res["recs"]
+        slate_ = sorted([r for r in recs_ if r.get("post_first_slot")], key=lambda r: r["post_first_slot"])
+        active = [r for r in slate_ if verdict(r["rank"]) == "Not reviewed"]
+        done = [r for r in recs_ if verdict(r["rank"]) != "Not reviewed"]
+        st.markdown('<div class="sec">Active · post first</div>', unsafe_allow_html=True)
+        if not active:
+            st.caption("All slate promos reviewed 🎉")
+        st.markdown("".join(
+            f'<div class="task"><div class="top"><span class="t">#{r["post_first_slot"]} · {E(short_seg(r))}</span>'
+            f'<span class="d">{r["duration_s"]:.0f}s</span></div><div class="x">{E(r["hook"])}</div></div>'
+            for r in active), unsafe_allow_html=True)
+        st.markdown('<div class="sec">Resolved</div>', unsafe_allow_html=True)
+        if not done:
+            st.caption("Review clips in the Promos tab: they move here.")
+        colour = {"✅": GREEN, "✂": "#ffc75f", "❌": "#ff6b8a"}
+        st.markdown("".join(
+            f'<div class="task done"><div class="top"><span class="t">#{r["rank"]} · {E(short_seg(r))}</span>'
+            f'<span class="d">{r["duration_s"]:.0f}s</span></div><div class="x">{E(r["hook"])}</div>'
+            f'<div class="v" style="color:{colour.get(verdict(r["rank"])[:1], "#fff")}">{E(verdict(r["rank"]))}</div></div>'
+            for r in done), unsafe_allow_html=True)
+        if st.button("Clear results", width="stretch"):
+            for k in list(st.session_state):
+                del st.session_state[k]
+            st.rerun()
+    st.caption("🔒 Files are processed in a temporary folder and deleted after each run.")
 
 
 def need_key():
@@ -355,115 +421,141 @@ def need_key():
     return not (env_name and os.getenv(env_name)) and not os.getenv("LLM_API_KEY")
 
 
-# --------------------------------------------------------------------------- hero
-st.markdown("""
-<div class="hero">
-  <div class="eyebrow">✦ Kuku · AI Generalist · Problem 1</div>
-  <h1>Find the moment.<br><span>Make them watch.</span></h1>
-  <p>Drop in a season of timed microdrama screenplays. Promo Finder scans every legal cut, scores the first
-  3 seconds and the final beat, and hands your editor a ranked shortlist of 20–60 s promos — with timestamps,
-  the hook, the cliffhanger and why each one works.</p>
-  <div class="chips"><span class="chip">⚡ Hook in 3 s</span><span class="chip">⏸ Cliffhanger endings</span>
-  <span class="chip">✂ Cuts on shot boundaries, never mid-line</span><span class="chip">🧠 Optional AI judge</span>
-  <span class="chip">⇩ CSV · JSON · review sheet</span></div>
-</div>""", unsafe_allow_html=True)
+# --------------------------------------------------------------------------- header
+st.markdown('<div class="lbl">Kuku · AI Generalist · Problem 1</div>', unsafe_allow_html=True)
+st.markdown("## Find the moment. Make them watch.")
+st.caption("Timed microdrama screenplays in → ranked 20–60 s promo clips out: timestamps, the hook, the cliffhanger "
+           "and why each one works.")
 
-if go or demo:
+action = st.session_state.pop("_action", None)
+if action:
     if need_key():
         st.error("Paste an API key in the sidebar (and press Enter), or choose **Rules only**.")
     else:
         try:
-            if demo:
-                res = analyse([("demo.zip", demo_zip_bytes())], "The Lighthouse Heir (fictional demo)",
+            if action == "demo":
+                new = analyse([("demo.zip", demo_zip_bytes())], "The Lighthouse Heir (fictional demo)",
                               provider, model, key, judge_top, stitch, full_eval)
             else:
-                res = analyse([(f.name, f.getvalue()) for f in uploads], ", ".join(f.name for f in uploads[:2]),
+                new = analyse([(f.name, f.getvalue()) for f in uploads], ", ".join(f.name for f in uploads[:2]),
                               provider, model, key, judge_top, stitch, full_eval)
             for k in [k for k in st.session_state if k.startswith(("v_", "n_"))]:
                 del st.session_state[k]
-            st.session_state["res"] = res
-            st.toast(f"Found {len(res['recs'])} promos", icon="🎬")
+            st.session_state["res"] = new
+            st.rerun()
         except (ValueError, zipfile.BadZipFile, SystemExit) as ex:
             st.error(f"Could not read the screenplays: {ex}")
         except Exception as ex:  # keep the UI alive and show what went wrong
             st.error(f"Analysis failed: {type(ex).__name__}: {ex}")
 
-res = st.session_state.get("res")
-
 # --------------------------------------------------------------------------- empty state
 if not res:
-    st.markdown('<div class="kicker">How it works</div>', unsafe_allow_html=True)
-    cols = st.columns(4)
-    steps = [("01", "Parse", "Screenplay → timed shots, actions, sound and dialogue with delivery tags."),
-             ("02", "Find legal cuts", "Only camera-shot boundaries that never split a spoken line."),
-             ("03", "Score every window", "Hook (first 3 s) · cliffhanger · standalone · intensity, 0–10 each."),
-             ("04", "Rank & review", "Diverse 'post first' slate; editors approve or reject each clip.")]
-    for c, (n, t, d) in zip(cols, steps):
-        c.markdown(f'<div class="step"><div class="num">{n}</div><b>{t}</b><p>{d}</p></div>', unsafe_allow_html=True)
-    st.write("")
-    a, b = st.columns([1.4, 1])
-    with a:
-        st.markdown('<div class="empty"><h3 style="margin-top:0">Start in 10 seconds</h3>'
-                    '<p style="color:#aab3cf">Upload your show in the sidebar and press <b>Find promos</b> — or press '
-                    '<b>Try the demo show</b> to see it on a short fictional drama.</p></div>', unsafe_allow_html=True)
-    with b:
-        st.markdown('<div class="empty"><h3 style="margin-top:0">Expected format</h3>'
-                    '<p style="color:#aab3cf">One <code>.txt</code> per episode with blocks like '
-                    '<code>**NAME (Delivery):**</code> then <code>Start: (00:04.80) | End: (00:07.10)</code>.</p></div>',
-                    unsafe_allow_html=True)
-        st.download_button("⇩ Download the demo screenplays", demo_zip_bytes(), "lighthouse_heir_demo.zip",
-                           "application/zip", width="stretch")
-    st.markdown('<div class="foot">PROMO FINDER STUDIO · built for Kuku editors · transparent, reproducible ranking</div>',
+    st.markdown('<div class="lbl">Overview</div>', unsafe_allow_html=True)
+    st.markdown('<div class="box ov"><div><div class="k">Promos found</div><div class="big">—</div></div>'
+                '<div class="stats"><div>Input<b>.zip / .txt</b></div><div>Clip length<b>20–60 s</b></div>'
+                '<div>Cuts<b>shot edges</b></div><div>AI judge<b>optional</b></div></div>'
+                '<div class="prog" style="grid-column:1/-1"><div class="fill">0%</div><div class="rest">Upload a show in the sidebar, '
+                'or try the demo</div></div></div>',
                 unsafe_allow_html=True)
+    st.write("")
+    a, b = st.columns([2, 1])
+    with a:
+        st.markdown('<div class="lbl">How it works</div>', unsafe_allow_html=True)
+        st.markdown('<div class="box"><table class="pt"><tr><th>Step</th><th>What happens</th><th>Owner</th></tr>'
+                    '<tr><td>Parse</td><td class="m">Screenplay → timed shots, actions, sound, dialogue</td><td class="g">code</td></tr>'
+                    '<tr><td>Legal cuts</td><td class="m">Shot boundaries that never split a spoken line</td><td class="g">code</td></tr>'
+                    '<tr><td>Score</td><td class="m">Hook (first 3 s) · cliffhanger · standalone · intensity</td><td class="g">rules</td></tr>'
+                    '<tr><td>Judge</td><td class="m">Optional AI re-scores the shortlist by line ID</td><td class="g">AI</td></tr>'
+                    '<tr><td>Review</td><td class="m">Editor marks Post / Trim / Reject → review sheet</td><td class="g">human</td></tr>'
+                    '</table></div>', unsafe_allow_html=True)
+    with b:
+        st.markdown('<div class="lbl">Expected format</div>', unsafe_allow_html=True)
+        st.markdown('<div class="box" style="font-size:.8rem;color:#a3a5b5;line-height:1.6">One <code>.txt</code> per episode:'
+                    '<br><code>**NAME (Delivery):**</code><br><code>Start: (00:04.80) | End: (00:07.10)</code><br>'
+                    '<code>line of dialogue</code></div>', unsafe_allow_html=True)
+        st.write("")
+        st.download_button("Download demo screenplays", demo_zip_bytes(), "lighthouse_heir_demo.zip", "application/zip",
+                           width="stretch")
+    st.write("")
+    with st.container(key="banner"):
+        c1, c2 = st.columns([3, 1], vertical_alignment="center")
+        c1.markdown("Try it on a short fictional drama — no confidential scripts needed.")
+        c2.button("Run the demo", on_click=_want_demo, width="stretch", key="demo_banner")
+    st.markdown('<div class="foot">PROMO FINDER STUDIO · transparent, reproducible ranking</div>', unsafe_allow_html=True)
     st.stop()
 
 # --------------------------------------------------------------------------- dashboard
 recs, ev, audit, meta, files = res["recs"], res["ev"], res["audit"], res["meta"], res["files"]
 s = ev["structural"]
 slate = sorted([r for r in recs if r.get("post_first_slot")], key=lambda r: r["post_first_slot"])
+n_rev = sum(verdict(r["rank"]) != "Not reviewed" for r in slate)
+pct = round(100 * n_rev / len(slate)) if slate else 0
 
-st.markdown(f'<div class="kicker">Run · {E(meta.get("source", meta["show"]))} · model: {E(meta["model"])}</div>',
+st.markdown(f'<div class="lbl">Overview · {E(meta.get("source", meta["show"]))}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="box"><div class="ov"><div><div class="k">Promos found</div><div class="big">{len(recs)}</div></div>'
+            f'<div class="stats"><div>Episodes<b>{meta["episodes"]}</b></div><div>Covered<b>{s["episodes_covered"]}/{meta["episodes"]}</b></div>'
+            f'<div>Avg length<b>{s["mean_duration_s"]} s</b></div>'
+            f'<div>Clean cuts<b>{"100%" if not s["mid_line_cuts"] else len(s["mid_line_cuts"])}</b></div></div></div>'
+            f'<div class="prog"><div class="fill" style="width:{max(pct, 8)}%">{pct}%</div>'
+            f'<div class="rest">of the posting slate reviewed · {n_rev}/{len(slate)} · model: {E(meta["model"])}</div></div></div>',
             unsafe_allow_html=True)
-m = st.columns(5)
-with m[0]: metric("Episodes", meta["episodes"], f"{audit['total_runtime_min']} min of story")
-with m[1]: metric("Promos found", len(recs), f"{s['continuous']} continuous · {s['stitched']} stitched")
-with m[2]: metric("Coverage", f"{s['episodes_covered']}/{meta['episodes']}", "episodes with a promo")
-with m[3]: metric("Avg length", f"{s['mean_duration_s']} s", "all within 20–60 s")
-with m[4]: metric("Clean cuts", "100%" if not s["mid_line_cuts"] else f"{len(s['mid_line_cuts'])} issues",
-                  "no cut inside a spoken line")
 st.write("")
 
-t1, t2, t3, t4, t5 = st.tabs(["🔥 Post these first", "🎬 All promos", "🗺️ Promo map", "🧪 Quality", "⇩ Exports"])
+left, right = st.columns([2, 1])
+with left:
+    st.markdown('<div class="lbl">Top promos</div>', unsafe_allow_html=True)
+    rows = "".join(
+        f'<tr><td>#{r["rank"]}</td><td>{E(short_seg(r))}</td><td class="m">{r["duration_s"]:.0f}s</td>'
+        f'<td><div class="mini"><i style="width:{min(100, score(r, "hook") * 10):.0f}%"></i></div></td>'
+        f'<td class="g">{score(r, "cliff") * 10:.0f}%</td></tr>' for r in recs[:6])
+    st.markdown(f'<div class="box"><table class="pt"><tr><th>Rank</th><th>Clip</th><th>Length</th><th>Hook</th>'
+                f'<th>Cliffhanger</th></tr>{rows}</table></div>', unsafe_allow_html=True)
+with right:
+    st.markdown('<div class="lbl">Episodes</div>', unsafe_allow_html=True)
+    with_promo = {e for r in recs for e in r["episodes"]}
+    slate_eps = {r["first_ep"] if "first_ep" in r else r["episodes"][0] for r in slate}
+    cells = "".join(
+        f'<div class="c {"s" if p["ep"] in slate_eps else ("" if p["ep"] in with_promo else "n")}" '
+        f'title="Episode {p["ep"]}">{p["ep"]}</div>' for p in audit["per_episode"])
+    st.markdown(f'<div class="box cal"><div class="head"><span>‹</span>Season · {meta["episodes"]} episodes<span>›</span></div>'
+                f'<div class="grid">{cells}</div><div class="leg"><span><i style="background:{ACCENT}"></i>post first</span>'
+                f'<span><i style="background:#fff"></i>has promos</span><span><i style="background:#5c5e6e"></i>none</span></div></div>',
+                unsafe_allow_html=True)
+st.write("")
 
-# ---- tab 1: slate
+review = pd.DataFrame([{"rank": r["rank"], "post_first_slot": r.get("post_first_slot") or "", "clip": seg_label(r, " "),
+                        "duration_s": r["duration_s"], "hook": r["hook"], "cliffhanger": r["cliffhanger"],
+                        "score": r["scores"]["total"], "editor_verdict": verdict(r["rank"]),
+                        "editor_notes": st.session_state.get(f"n_{r['rank']}", "")} for r in recs])
+with st.container(key="banner"):
+    c1, c2 = st.columns([3, 1], vertical_alignment="center")
+    c1.markdown("Review the slate in the Promos tab, then hand your editor the sheet with every verdict.")
+    c2.download_button("Download review sheet", review.to_csv(index=False).encode("utf-8-sig"), "editor_review.csv",
+                       "text/csv", width="stretch")
+st.write("")
+
+t1, t2, t3, t4, t5 = st.tabs(["Post first", "Promos & review", "Promo map", "Quality", "Exports"])
+
 with t1:
-    st.markdown("### The posting slate")
-    st.caption("Best quality × earliest in the funnel, max one per episode and three per hook type. "
-               "Earlier episodes land new viewers at the start of the show and spoil less.")
-    if not slate:
-        st.info("No slate for this run.")
+    st.caption("Best quality × earliest in the funnel; max one per episode and three per hook type.")
     for r in slate:
         st.markdown(card(r, slot=r["post_first_slot"]), unsafe_allow_html=True)
-        with st.expander(f"📜 Script for slot #{r['post_first_slot']} · {seg_label(r)}"):
+        with st.expander(f"Script · slot #{r['post_first_slot']} · {seg_label(r)}"):
             st.markdown(script_html(r["transcript"]), unsafe_allow_html=True)
 
-# ---- tab 2: all promos with filters + editor review
 with t2:
     f1, f2, f3, f4 = st.columns([1.4, 1, 1, 1])
-    q = f1.text_input("Search hook / cliffhanger / why", placeholder="e.g. poison, duke, slap")
-    eps = sorted({e for r in recs for e in r["episodes"]})
-    ep_sel = f2.multiselect("Episodes", eps)
-    cats = sorted({r["category"] for r in recs})
-    cat_sel = f3.multiselect("Hook type", cats)
+    q = f1.text_input("Search", placeholder="e.g. poison, duke, slap")
+    ep_sel = f2.multiselect("Episodes", sorted(with_promo))
+    cat_sel = f3.multiselect("Hook type", sorted({r["category"] for r in recs}))
     sort = f4.selectbox("Sort by", ["Quality rank", "Episode order", "Hook score", "Cliffhanger score", "Shortest first"])
     view = [r for r in recs
             if (not q or q.lower() in f"{r['hook']} {r['cliffhanger']} {r['why']}".lower())
-            and (not ep_sel or set(ep_sel) & set(r["episodes"]))
-            and (not cat_sel or r["category"] in cat_sel)]
-    keyf = {"Quality rank": lambda r: r["rank"], "Episode order": lambda r: (r["episodes"][0], r["segments"][0]["start_s"]),
-            "Hook score": lambda r: -score(r, "hook"), "Cliffhanger score": lambda r: -score(r, "cliff"),
-            "Shortest first": lambda r: r["duration_s"]}[sort]
-    view.sort(key=keyf)
+            and (not ep_sel or set(ep_sel) & set(r["episodes"])) and (not cat_sel or r["category"] in cat_sel)]
+    view.sort(key={"Quality rank": lambda r: r["rank"],
+                   "Episode order": lambda r: (r["episodes"][0], r["segments"][0]["start_s"]),
+                   "Hook score": lambda r: -score(r, "hook"), "Cliffhanger score": lambda r: -score(r, "cliff"),
+                   "Shortest first": lambda r: r["duration_s"]}[sort])
     n_view = len(view)
     opts = sorted({o for o in (10, 20, 50) if o < n_view} | {n_view}) if n_view else [0]
     show_n = st.select_slider("Show", options=opts, value=min(20, n_view) if n_view else 0,
@@ -473,115 +565,96 @@ with t2:
         st.info("No promos match these filters.")
     for r in view[:show_n]:
         st.markdown(card(r), unsafe_allow_html=True)
-        with st.expander(f"📜 Script, review & details · #{r['rank']}"):
+        with st.expander(f"Script & review · #{r['rank']}  —  {verdict(r['rank'])}"):
             st.markdown(script_html(r["transcript"]), unsafe_allow_html=True)
             c1, c2 = st.columns([1, 2])
             c1.selectbox("Editor verdict", ["Not reviewed", "✅ Post it", "✂ Needs a trim", "❌ Reject"], key=f"v_{r['rank']}")
             c2.text_input("Notes (better start/end, issues…)", key=f"n_{r['rank']}")
             if r.get("llm_issues"):
                 st.warning("AI flagged: " + ", ".join(map(str, r["llm_issues"])))
-            if r.get("llm_notes"):
-                st.caption(" · ".join(map(str, r["llm_notes"])))
 
-# ---- tab 3: promo map
 with t3:
-    st.markdown("### Where the promos live")
-    st.caption("Each row is an episode; coloured bars are promo windows (brighter = higher score). Hover for the hook.")
-    rows = []
-    for r in recs:
-        for sgm in r["segments"]:
-            rows.append({"Episode": f"E{sgm['episode']:02d}", "start": sgm["start_s"], "end": sgm["end_s"],
-                         "Score": r["scores"]["total"], "Rank": r["rank"], "Hook": r["hook"][:90],
-                         "Clip": seg_label(r)})
+    st.caption("Each row is an episode; bars are promo windows (brighter = higher score). Hover for the hook.")
+    rows = [{"Episode": f"E{g['episode']:02d}", "start": g["start_s"], "end": g["end_s"], "Score": r["scores"]["total"],
+             "Rank": r["rank"], "Hook": r["hook"][:90], "Clip": seg_label(r)} for r in recs for g in r["segments"]]
     dur = pd.DataFrame([{"Episode": f"E{p['ep']:02d}", "start": 0.0, "end": p["duration_s"]} for p in audit["per_episode"]])
     try:
         import altair as alt
-        base = alt.Chart(dur).mark_bar(color="#1c2442", cornerRadius=4).encode(
+        base = alt.Chart(dur).mark_bar(color="#30313d", cornerRadius=4).encode(
             y=alt.Y("Episode:N", sort=None, title=None), x=alt.X("start:Q", title="seconds into episode"), x2="end:Q")
-        bars_ = alt.Chart(pd.DataFrame(rows)).mark_bar(cornerRadius=4, opacity=.95).encode(
+        fg = alt.Chart(pd.DataFrame(rows)).mark_bar(cornerRadius=4).encode(
             y=alt.Y("Episode:N", sort=None), x="start:Q", x2="end:Q",
-            color=alt.Color("Score:Q", scale=alt.Scale(range=["#1d4d3c", "#10e39a", "#c6f36b"]), legend=None),
+            color=alt.Color("Score:Q", scale=alt.Scale(range=["#4a3a99", ACCENT, GREEN]), legend=None),
             tooltip=["Rank", "Clip", "Score", "Hook"])
-        chart = (base + bars_).properties(height=max(160, 16 * len(dur)), background="transparent").configure_view(strokeWidth=0).configure_axis(
-            labelColor="#9aa4c2", titleColor="#9aa4c2", gridColor="#1a2140", domainColor="#262f4d")
-        st.altair_chart(chart, width="stretch")
+        st.altair_chart((base + fg).properties(height=max(160, 16 * len(dur)), background="transparent")
+                        .configure_view(strokeWidth=0).configure_axis(labelColor="#8b8d9e", titleColor="#8b8d9e",
+                                                                      gridColor="#2c2d38", domainColor="#363845"),
+                        width="stretch")
     except Exception:
         st.bar_chart(pd.DataFrame(rows).groupby("Episode").size())
     a, b = st.columns(2)
-    with a:
-        st.markdown("**Promos by hook type**")
-        st.bar_chart(pd.Series([r["category"] for r in recs]).value_counts(), color="#10e39a")
-    with b:
-        st.markdown("**Promo length (seconds)**")
-        st.bar_chart(pd.cut(pd.Series([r["duration_s"] for r in recs]), [20, 25, 30, 35, 40, 45, 50, 55, 60],
-                            include_lowest=True).value_counts().sort_index().rename(index=str), color="#c6f36b")
+    a.markdown("**Promos by hook type**")
+    a.bar_chart(pd.Series([r["category"] for r in recs]).value_counts(), color=ACCENT)
+    b.markdown("**Promo length (seconds)**")
+    b.bar_chart(pd.cut(pd.Series([r["duration_s"] for r in recs]), [20, 25, 30, 35, 40, 45, 50, 55, 60],
+                       include_lowest=True).value_counts().sort_index().rename(index=str), color=GREEN)
 
-# ---- tab 4: quality
 with t4:
-    st.markdown("### Quality checks")
     checks = [("Every promo is 20–60 s", not s["duration_violations"]),
               ("No cut inside a spoken line", not s["mid_line_cuts"]),
               ("Every episode has at least one promo", not s["episodes_without_promo"]),
               ("Hook, cliffhanger and why filled for every promo", all(r["hook"] and r["cliffhanger"] and r["why"] for r in recs)),
               ("No missing episode numbers", not audit["missing_episode_numbers"])]
-    st.markdown("".join(f'<div style="margin:4px 0">{"<span class=ok>✔ PASS</span>" if ok else "<span class=bad>✖ FAIL</span>"}'
-                        f'&nbsp;&nbsp;{E(lbl)}</div>' for lbl, ok in checks), unsafe_allow_html=True)
+    st.markdown('<div class="box">' + "".join(
+        f'<div style="margin:5px 0">{"<span class=ok>PASS</span>" if ok else "<span class=bad>FAIL</span>"}&nbsp;&nbsp;{E(l)}</div>'
+        for l, ok in checks) + "</div>", unsafe_allow_html=True)
+    st.write("")
     sil = ev.get("silver_cliffhanger_test")
     if sil:
-        st.markdown("**Silver cliffhanger test** — is each episode's written ending ranked in the top 20 % of possible end points? "
+        st.markdown("**Silver cliffhanger test**: is each episode's written ending in the top 20 % of possible end points? "
                     "(random = 20 %; held-out = odd episodes not used for tuning)")
-        st.dataframe(pd.DataFrame([{"Episodes": split, "Writer cue words": "off" if mk == "markers_off" else "on",
+        st.dataframe(pd.DataFrame([{"Episodes": sp, "Writer cue words": "off" if mk == "markers_off" else "on",
                                     "In top 20 %": f"{v['share_in_top_20pct']:.0%}", "Median percentile": v["median_percentile"]}
-                                   for split, d in sil.items() for mk, v in d.items()]), hide_index=True, width="stretch")
+                                   for sp, d in sil.items() for mk, v in d.items()]), hide_index=True, width="stretch")
     stab = ev.get("weight_stability")
     if stab:
-        st.markdown(f"**Weight stability** (±30 % random weights, {stab['trials']} trials): top-10 overlap "
-                    f"**{stab['top10_exact_jaccard_mean']:.2f}** exact clips · **{stab['top10_episode_jaccard_mean']:.2f}** same episodes")
+        st.markdown(f"**Weight stability** (±30 % weights, {stab['trials']} trials): top-10 overlap "
+                    f"**{stab['top10_exact_jaccard_mean']:.2f}** exact · **{stab['top10_episode_jaccard_mean']:.2f}** same episodes")
     if not sil and not stab:
-        st.caption("Turn on **Run stability test** in the sidebar for the silver cliffhanger and stability checks.")
-    st.markdown("**Data-quality audit**")
-    ic = audit.get("issue_counts", {})
+        st.caption("Turn on **Stability test** in the sidebar for the silver cliffhanger and stability checks.")
     names = {"dialogue_silence_gt_8s": "Dialogue-free stretches > 8 s", "dialogue_overlap": "Overlapping lines (two speakers)",
              "very_long_event": "Very long single block (> 15 s)", "scene_gap": "Gaps between scenes",
              "outside_scene_bounds": "Events outside their scene", "negative_duration": "Negative durations",
              "empty_text": "Empty blocks"}
+    ic = audit.get("issue_counts", {})
+    st.markdown("**Data-quality audit**")
     if ic:
         st.dataframe(pd.DataFrame([{"Check": names.get(k, k), "Count": v} for k, v in ic.items()]), hide_index=True, width="stretch")
     else:
         st.success("No data-quality issues found.")
     with st.expander("Per-episode stats"):
         st.dataframe(pd.DataFrame(audit["per_episode"]), hide_index=True, width="stretch")
-    st.warning("Scores are editorial heuristics, not predicted views or retention. Check the first 3 s and the final beat "
-               "against the actual footage before publishing.")
 
-# ---- tab 5: exports
 with t5:
-    st.markdown("### Download the run")
-    review = pd.DataFrame([{"rank": r["rank"], "post_first_slot": r.get("post_first_slot") or "", "clip": seg_label(r, " "),
-                            "duration_s": r["duration_s"], "hook": r["hook"], "cliffhanger": r["cliffhanger"],
-                            "score": r["scores"]["total"],
-                            "editor_verdict": st.session_state.get(f"v_{r['rank']}", "Not reviewed"),
-                            "editor_notes": st.session_state.get(f"n_{r['rank']}", "")} for r in recs])
     zbuf = io.BytesIO()
     with zipfile.ZipFile(zbuf, "w", zipfile.ZIP_DEFLATED) as z:
         for name, data in files.items():
             z.writestr(name, data)
         z.writestr("editor_review.csv", review.to_csv(index=False))
     c1, c2 = st.columns(2)
-    c1.download_button("⇩ Everything (zip)", zbuf.getvalue(), "promo_finder_outputs.zip", "application/zip",
+    c1.download_button("Everything (zip)", zbuf.getvalue(), "promo_finder_outputs.zip", "application/zip",
                        type="primary", width="stretch")
-    c2.download_button("⇩ Editor review sheet (with your verdicts)", review.to_csv(index=False).encode("utf-8-sig"),
-                       "editor_review.csv", "text/csv", width="stretch")
+    c2.download_button("Editor review sheet", review.to_csv(index=False).encode("utf-8-sig"), "editor_review.csv",
+                       "text/csv", width="stretch", key="rev2")
     c3, c4, c5 = st.columns(3)
     for col, name, mime in ((c3, "promos.csv", "text/csv"), (c4, "promos.json", "application/json"),
                             (c5, "promos_report.md", "text/markdown")):
         if name in files:
-            col.download_button(f"⇩ {name}", files[name], name, mime, width="stretch")
+            col.download_button(name, files[name], name, mime, width="stretch")
     reviewed = review[review.editor_verdict != "Not reviewed"]
     if len(reviewed):
         ok = reviewed.editor_verdict.str.contains("Post").sum()
         st.success(f"Reviewed {len(reviewed)} promos · {ok} marked 'Post it' → precision {ok / len(reviewed):.0%}")
-    st.caption("Exports contain short screenplay quotes — share them only with the content owner.")
+    st.caption("Exports contain short screenplay quotes: share them only with the content owner.")
 
-st.markdown('<div class="foot">PROMO FINDER STUDIO · built for Kuku editors · transparent, reproducible ranking</div>',
-            unsafe_allow_html=True)
+st.markdown('<div class="foot">PROMO FINDER STUDIO · transparent, reproducible ranking</div>', unsafe_allow_html=True)
