@@ -27,17 +27,17 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 :root{--bg:#090c17;--panel:#11162a;--panel2:#161d36;--line:#262f4d;--ink:#eef1fb;--muted:#9aa4c2;
-      --pink:#ff3d7f;--amber:#ffb547;--teal:#3ee6c4;--grad:linear-gradient(100deg,#ff3d7f,#ffb547);}
+      --pink:#10e39a;--amber:#c6f36b;--teal:#5cc8ff;--grad:linear-gradient(100deg,#10e39a,#c6f36b);}
 html,body,[class*="css"],.stApp{font-family:'Inter',sans-serif;}
-.stApp{background:radial-gradient(1100px 500px at 85% -10%,rgba(255,61,127,.16),transparent 60%),
-       radial-gradient(900px 500px at -10% 10%,rgba(62,230,196,.08),transparent 60%),var(--bg);color:var(--ink);}
+.stApp{background:radial-gradient(1100px 500px at 85% -10%,rgba(16,227,154,.14),transparent 60%),
+       radial-gradient(900px 500px at -10% 10%,rgba(92,200,255,.07),transparent 60%),var(--bg);color:var(--ink);}
 [data-testid="stSidebar"]{background:#0d1222;border-right:1px solid var(--line);}
 [data-testid="stHeader"]{background:rgba(9,12,23,.7);backdrop-filter:blur(8px);}
 .block-container{padding-top:1.6rem;max-width:1320px;}
 h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;}
 #MainMenu,footer{visibility:hidden;}
-.hero{position:relative;overflow:hidden;padding:34px 38px;border-radius:24px;border:1px solid #2e2546;
-      background:linear-gradient(120deg,#1a1430 0%,#121a33 55%,#0f2230 100%);margin-bottom:22px;}
+.hero{position:relative;overflow:hidden;padding:34px 38px;border-radius:24px;border:1px solid #1f3d33;
+      background:linear-gradient(120deg,#0f241d 0%,#10192b 55%,#0f2230 100%);margin-bottom:22px;}
 .hero:after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
       background:var(--grad);opacity:.18;filter:blur(30px);}
 .hero .eyebrow{font-size:.72rem;letter-spacing:.22em;font-weight:800;text-transform:uppercase;
@@ -56,20 +56,20 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;}
 .metric .s{color:#7f89a8;font-size:.75rem;margin-top:2px;}
 .card{position:relative;border:1px solid var(--line);border-radius:20px;padding:20px 22px 16px 92px;margin-bottom:12px;
       background:linear-gradient(110deg,#161c35,#10152a);}
-.card.top{border-color:#5a2b4a;box-shadow:0 0 0 1px rgba(255,61,127,.15),0 10px 40px -20px rgba(255,61,127,.45);}
+.card.top{border-color:#1f5a44;box-shadow:0 0 0 1px rgba(16,227,154,.15),0 10px 40px -20px rgba(16,227,154,.45);}
 .rank{position:absolute;left:20px;top:18px;width:54px;height:54px;border-radius:16px;display:flex;align-items:center;
-      justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:1.45rem;color:#14070d;background:var(--grad);}
+      justify-content:center;font-family:'Space Grotesk';font-weight:700;font-size:1.45rem;color:#04130d;background:var(--grad);}
 .rank.dim{background:#232b4a;color:#cfd6ee;}
 .meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;}
 .tag{font-size:.72rem;font-weight:700;border-radius:8px;padding:4px 9px;background:#1f2745;color:#cdd5f0;border:1px solid #2c3660;}
-.tag.time{background:rgba(62,230,196,.1);color:#8ff3df;border-color:#24695d;}
-.tag.cat{background:rgba(255,181,71,.1);color:#ffd28f;border-color:#6d5226;}
-.tag.score{background:rgba(255,61,127,.12);color:#ff9dbd;border-color:#6b2a45;}
+.tag.time{background:rgba(92,200,255,.1);color:#a8e1ff;border-color:#24527a;}
+.tag.cat{background:rgba(198,243,107,.1);color:#dcf7a6;border-color:#4f6b25;}
+.tag.score{background:rgba(16,227,154,.12);color:#8cf5cb;border-color:#1f6b4f;}
 .beat{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:start;margin:6px 0;}
 .beat .lab{font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 0;border-radius:7px;
       text-align:center;}
-.beat .lab.h{background:rgba(255,61,127,.15);color:#ff8fb3;}
-.beat .lab.c{background:rgba(255,181,71,.14);color:#ffc977;}
+.beat .lab.h{background:rgba(16,227,154,.15);color:#7ef2c4;}
+.beat .lab.c{background:rgba(198,243,107,.14);color:#d7f59a;}
 .beat .txt{color:#f2f4fb;font-size:.98rem;line-height:1.45;}
 .why{color:#aab3cf;font-size:.86rem;margin-top:8px;line-height:1.5;}
 .bars{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;}
@@ -79,17 +79,17 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em;}
 .script{border:1px solid var(--line);border-radius:14px;background:#0c1020;padding:10px 14px;}
 .line{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:4px 0;border-bottom:1px dashed #1c2340;font-size:.88rem;}
 .line:last-child{border-bottom:0;}
-.line .ts{font-family:'Space Grotesk';color:#8ff3df;font-size:.78rem;padding-top:1px;}
-.line .sp{color:#ffc977;font-weight:700;}
+.line .ts{font-family:'Space Grotesk';color:#a8e1ff;font-size:.78rem;padding-top:1px;}
+.line .sp{color:#c6f36b;font-weight:700;}
 .line .act{color:#9aa4c2;font-style:italic;}
-.ok{color:#3ee6c4;font-weight:700;} .bad{color:#ff6b8f;font-weight:700;}
+.ok{color:#10e39a;font-weight:700;} .bad{color:#ff6b8f;font-weight:700;}
 .empty{border:1px dashed #33406a;border-radius:20px;padding:26px;background:rgba(255,255,255,.02);}
 .step{border:1px solid var(--line);border-radius:18px;padding:18px;background:var(--panel);height:100%;}
 .step b{font-family:'Space Grotesk';font-size:1.05rem;color:#fff;} .step p{color:var(--muted);font-size:.86rem;margin:.4rem 0 0;}
 .step .num{font-family:'Space Grotesk';font-size:.8rem;font-weight:700;background:var(--grad);-webkit-background-clip:text;color:transparent;}
 .foot{text-align:center;color:#69728f;font-size:.78rem;margin-top:36px;}
 [data-testid="stTabs"] button p{font-weight:700;font-size:.95rem;}
-.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{background:var(--grad)!important;color:#1a0710!important;
+.stButton>button[kind="primary"],.stDownloadButton>button[kind="primary"]{background:var(--grad)!important;color:#04130d!important;
       border:0!important;font-weight:800!important;border-radius:12px!important;}
 .stButton>button,.stDownloadButton>button{border-radius:12px!important;}
 /* dark fallbacks (in case .streamlit/config.toml is missing) */
@@ -500,7 +500,7 @@ with t3:
             y=alt.Y("Episode:N", sort=None, title=None), x=alt.X("start:Q", title="seconds into episode"), x2="end:Q")
         bars_ = alt.Chart(pd.DataFrame(rows)).mark_bar(cornerRadius=4, opacity=.95).encode(
             y=alt.Y("Episode:N", sort=None), x="start:Q", x2="end:Q",
-            color=alt.Color("Score:Q", scale=alt.Scale(range=["#5b2a6e", "#ff3d7f", "#ffb547"]), legend=None),
+            color=alt.Color("Score:Q", scale=alt.Scale(range=["#1d4d3c", "#10e39a", "#c6f36b"]), legend=None),
             tooltip=["Rank", "Clip", "Score", "Hook"])
         chart = (base + bars_).properties(height=max(160, 16 * len(dur)), background="transparent").configure_view(strokeWidth=0).configure_axis(
             labelColor="#9aa4c2", titleColor="#9aa4c2", gridColor="#1a2140", domainColor="#262f4d")
@@ -510,11 +510,11 @@ with t3:
     a, b = st.columns(2)
     with a:
         st.markdown("**Promos by hook type**")
-        st.bar_chart(pd.Series([r["category"] for r in recs]).value_counts(), color="#ff3d7f")
+        st.bar_chart(pd.Series([r["category"] for r in recs]).value_counts(), color="#10e39a")
     with b:
         st.markdown("**Promo length (seconds)**")
         st.bar_chart(pd.cut(pd.Series([r["duration_s"] for r in recs]), [20, 25, 30, 35, 40, 45, 50, 55, 60],
-                            include_lowest=True).value_counts().sort_index().rename(index=str), color="#ffb547")
+                            include_lowest=True).value_counts().sort_index().rename(index=str), color="#c6f36b")
 
 # ---- tab 4: quality
 with t4:
