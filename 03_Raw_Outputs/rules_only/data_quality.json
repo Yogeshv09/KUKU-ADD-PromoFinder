@@ -1,0 +1,691 @@
+{
+ "episodes": 50,
+ "missing_episode_numbers": [],
+ "total_runtime_min": 102.7,
+ "episode_duration_s": {
+  "min": 70.5,
+  "max": 200.8,
+  "mean": 123.3
+ },
+ "event_counts": {
+  "camera": 1754,
+  "action": 372,
+  "dialogue": 1487,
+  "sfx": 114
+ },
+ "top_speakers": [
+  [
+   "JULIANA",
+   462
+  ],
+  [
+   "ALEXANDER",
+   202
+  ],
+  [
+   "CATHERINE",
+   196
+  ],
+  [
+   "BLOND NOBLEMAN",
+   53
+  ],
+  [
+   "ALEXANDER'S MOTHER",
+   39
+  ],
+  [
+   "PRUDENCE",
+   38
+  ],
+  [
+   "LORD",
+   36
+  ],
+  [
+   "GERALD",
+   32
+  ],
+  [
+   "CLARISSA",
+   28
+  ],
+  [
+   "MYSTERIOUS BEARDED MAN",
+   28
+  ],
+  [
+   "DUCHESS",
+   26
+  ],
+  [
+   "RUPERT",
+   22
+  ],
+  [
+   "HIGH PRIEST",
+   22
+  ],
+  [
+   "MAID",
+   20
+  ],
+  [
+   "ELDER NOBLEMAN",
+   19
+  ]
+ ],
+ "issue_counts": {
+  "dialogue_silence_gt_8s": 26,
+  "dialogue_overlap": 7,
+  "very_long_event": 1
+ },
+ "issues": [
+  [
+   "dialogue_silence_gt_8s",
+   1,
+   "",
+   "00:25.50 -> 00:33.80"
+  ],
+  [
+   "dialogue_overlap",
+   5,
+   "E05-036",
+   "CLARISSA ends 01:02.50 > GERALD starts 01:02.40"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   5,
+   "",
+   "01:04.60 -> 01:17.80"
+  ],
+  [
+   "dialogue_overlap",
+   6,
+   "E06-059",
+   "JULIANA ends 01:06.80 > MYSTERIOUS BEARDED MAN starts 01:06.70"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   6,
+   "",
+   "01:13.20 -> 01:29.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   7,
+   "",
+   "01:11.20 -> 01:26.50"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   10,
+   "",
+   "00:28.00 -> 00:38.10"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   11,
+   "",
+   "01:33.20 -> 01:44.20"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   14,
+   "",
+   "00:38.50 -> 00:47.20"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   15,
+   "",
+   "01:01.00 -> 01:10.50"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   17,
+   "",
+   "01:02.20 -> 01:18.50"
+  ],
+  [
+   "dialogue_overlap",
+   18,
+   "E18-041",
+   "ALEXANDER ends 01:15.50 > JULIANA starts 01:15.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   18,
+   "",
+   "00:43.50 -> 00:56.50"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   18,
+   "",
+   "01:27.50 -> 01:36.50"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   18,
+   "",
+   "01:46.80 -> 02:16.20"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   19,
+   "",
+   "01:28.90 -> 01:37.40"
+  ],
+  [
+   "dialogue_overlap",
+   20,
+   "E20-023",
+   "RUPERT ends 00:34.40 > CATHERINE starts 00:34.20"
+  ],
+  [
+   "dialogue_overlap",
+   21,
+   "E21-017",
+   "PRUDENCE ends 00:25.30 > JULIANA starts 00:25.10"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   22,
+   "",
+   "01:38.50 -> 01:54.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   23,
+   "",
+   "00:46.50 -> 00:58.50"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   26,
+   "",
+   "00:47.00 -> 00:56.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   26,
+   "",
+   "01:25.80 -> 01:36.00"
+  ],
+  [
+   "dialogue_overlap",
+   28,
+   "E28-044",
+   "DUCHESS ends 00:58.70 > BLOND NOBLEMAN starts 00:58.60"
+  ],
+  [
+   "dialogue_overlap",
+   32,
+   "E32-069",
+   "JULIANA ends 01:30.20 > CATHERINE starts 01:30.10"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   35,
+   "",
+   "00:08.50 -> 00:21.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   35,
+   "",
+   "00:23.00 -> 00:37.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   37,
+   "",
+   "01:27.50 -> 01:36.00"
+  ],
+  [
+   "very_long_event",
+   38,
+   "E38-043",
+   "22.2s sfx"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   39,
+   "",
+   "00:32.40 -> 00:41.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   39,
+   "",
+   "00:49.20 -> 01:02.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   39,
+   "",
+   "01:06.90 -> 01:15.80"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   40,
+   "",
+   "00:53.20 -> 01:05.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   40,
+   "",
+   "01:17.40 -> 01:32.00"
+  ],
+  [
+   "dialogue_silence_gt_8s",
+   41,
+   "",
+   "00:15.30 -> 00:26.80"
+  ]
+ ],
+ "per_episode": [
+  {
+   "ep": 1,
+   "duration_s": 138.0,
+   "scenes": 1,
+   "events": 95,
+   "dialogue_lines": 37,
+   "words_per_min": 86.5
+  },
+  {
+   "ep": 2,
+   "duration_s": 110.0,
+   "scenes": 1,
+   "events": 74,
+   "dialogue_lines": 31,
+   "words_per_min": 133.6
+  },
+  {
+   "ep": 3,
+   "duration_s": 145.8,
+   "scenes": 3,
+   "events": 118,
+   "dialogue_lines": 46,
+   "words_per_min": 96.7
+  },
+  {
+   "ep": 4,
+   "duration_s": 151.4,
+   "scenes": 1,
+   "events": 110,
+   "dialogue_lines": 40,
+   "words_per_min": 91.9
+  },
+  {
+   "ep": 5,
+   "duration_s": 110.5,
+   "scenes": 1,
+   "events": 62,
+   "dialogue_lines": 29,
+   "words_per_min": 91.2
+  },
+  {
+   "ep": 6,
+   "duration_s": 115.0,
+   "scenes": 2,
+   "events": 97,
+   "dialogue_lines": 28,
+   "words_per_min": 74.6
+  },
+  {
+   "ep": 7,
+   "duration_s": 116.0,
+   "scenes": 3,
+   "events": 58,
+   "dialogue_lines": 20,
+   "words_per_min": 67.8
+  },
+  {
+   "ep": 8,
+   "duration_s": 78.0,
+   "scenes": 1,
+   "events": 63,
+   "dialogue_lines": 26,
+   "words_per_min": 98.5
+  },
+  {
+   "ep": 9,
+   "duration_s": 115.5,
+   "scenes": 2,
+   "events": 89,
+   "dialogue_lines": 33,
+   "words_per_min": 106.5
+  },
+  {
+   "ep": 10,
+   "duration_s": 94.0,
+   "scenes": 1,
+   "events": 60,
+   "dialogue_lines": 22,
+   "words_per_min": 62.6
+  },
+  {
+   "ep": 11,
+   "duration_s": 112.8,
+   "scenes": 2,
+   "events": 85,
+   "dialogue_lines": 33,
+   "words_per_min": 112.8
+  },
+  {
+   "ep": 12,
+   "duration_s": 87.2,
+   "scenes": 1,
+   "events": 55,
+   "dialogue_lines": 24,
+   "words_per_min": 143.8
+  },
+  {
+   "ep": 13,
+   "duration_s": 118.9,
+   "scenes": 2,
+   "events": 75,
+   "dialogue_lines": 22,
+   "words_per_min": 57.5
+  },
+  {
+   "ep": 14,
+   "duration_s": 87.6,
+   "scenes": 3,
+   "events": 51,
+   "dialogue_lines": 14,
+   "words_per_min": 48.6
+  },
+  {
+   "ep": 15,
+   "duration_s": 86.0,
+   "scenes": 1,
+   "events": 55,
+   "dialogue_lines": 17,
+   "words_per_min": 60.0
+  },
+  {
+   "ep": 16,
+   "duration_s": 83.2,
+   "scenes": 1,
+   "events": 64,
+   "dialogue_lines": 22,
+   "words_per_min": 52.7
+  },
+  {
+   "ep": 17,
+   "duration_s": 118.9,
+   "scenes": 2,
+   "events": 75,
+   "dialogue_lines": 26,
+   "words_per_min": 65.6
+  },
+  {
+   "ep": 18,
+   "duration_s": 192.0,
+   "scenes": 5,
+   "events": 81,
+   "dialogue_lines": 28,
+   "words_per_min": 28.1
+  },
+  {
+   "ep": 19,
+   "duration_s": 119.6,
+   "scenes": 3,
+   "events": 63,
+   "dialogue_lines": 29,
+   "words_per_min": 118.9
+  },
+  {
+   "ep": 20,
+   "duration_s": 114.8,
+   "scenes": 4,
+   "events": 68,
+   "dialogue_lines": 41,
+   "words_per_min": 164.7
+  },
+  {
+   "ep": 21,
+   "duration_s": 114.0,
+   "scenes": 3,
+   "events": 76,
+   "dialogue_lines": 28,
+   "words_per_min": 163.2
+  },
+  {
+   "ep": 22,
+   "duration_s": 131.0,
+   "scenes": 4,
+   "events": 81,
+   "dialogue_lines": 30,
+   "words_per_min": 75.6
+  },
+  {
+   "ep": 23,
+   "duration_s": 131.5,
+   "scenes": 1,
+   "events": 67,
+   "dialogue_lines": 20,
+   "words_per_min": 43.8
+  },
+  {
+   "ep": 24,
+   "duration_s": 92.0,
+   "scenes": 2,
+   "events": 69,
+   "dialogue_lines": 23,
+   "words_per_min": 95.2
+  },
+  {
+   "ep": 25,
+   "duration_s": 168.0,
+   "scenes": 1,
+   "events": 95,
+   "dialogue_lines": 42,
+   "words_per_min": 78.2
+  },
+  {
+   "ep": 26,
+   "duration_s": 120.9,
+   "scenes": 1,
+   "events": 51,
+   "dialogue_lines": 14,
+   "words_per_min": 81.9
+  },
+  {
+   "ep": 27,
+   "duration_s": 150.5,
+   "scenes": 1,
+   "events": 95,
+   "dialogue_lines": 44,
+   "words_per_min": 108.8
+  },
+  {
+   "ep": 28,
+   "duration_s": 138.5,
+   "scenes": 1,
+   "events": 96,
+   "dialogue_lines": 50,
+   "words_per_min": 124.3
+  },
+  {
+   "ep": 29,
+   "duration_s": 116.7,
+   "scenes": 3,
+   "events": 74,
+   "dialogue_lines": 29,
+   "words_per_min": 95.1
+  },
+  {
+   "ep": 30,
+   "duration_s": 151.2,
+   "scenes": 3,
+   "events": 71,
+   "dialogue_lines": 28,
+   "words_per_min": 98.4
+  },
+  {
+   "ep": 31,
+   "duration_s": 160.0,
+   "scenes": 1,
+   "events": 87,
+   "dialogue_lines": 38,
+   "words_per_min": 103.9
+  },
+  {
+   "ep": 32,
+   "duration_s": 154.4,
+   "scenes": 1,
+   "events": 117,
+   "dialogue_lines": 50,
+   "words_per_min": 127.9
+  },
+  {
+   "ep": 33,
+   "duration_s": 174.0,
+   "scenes": 1,
+   "events": 99,
+   "dialogue_lines": 50,
+   "words_per_min": 80.7
+  },
+  {
+   "ep": 34,
+   "duration_s": 190.0,
+   "scenes": 1,
+   "events": 116,
+   "dialogue_lines": 48,
+   "words_per_min": 80.8
+  },
+  {
+   "ep": 35,
+   "duration_s": 157.5,
+   "scenes": 3,
+   "events": 72,
+   "dialogue_lines": 33,
+   "words_per_min": 69.3
+  },
+  {
+   "ep": 36,
+   "duration_s": 200.8,
+   "scenes": 1,
+   "events": 121,
+   "dialogue_lines": 57,
+   "words_per_min": 75.9
+  },
+  {
+   "ep": 37,
+   "duration_s": 156.5,
+   "scenes": 4,
+   "events": 79,
+   "dialogue_lines": 33,
+   "words_per_min": 93.2
+  },
+  {
+   "ep": 38,
+   "duration_s": 87.9,
+   "scenes": 1,
+   "events": 57,
+   "dialogue_lines": 21,
+   "words_per_min": 58.7
+  },
+  {
+   "ep": 39,
+   "duration_s": 98.4,
+   "scenes": 5,
+   "events": 59,
+   "dialogue_lines": 18,
+   "words_per_min": 38.4
+  },
+  {
+   "ep": 40,
+   "duration_s": 110.1,
+   "scenes": 4,
+   "events": 51,
+   "dialogue_lines": 20,
+   "words_per_min": 68.1
+  },
+  {
+   "ep": 41,
+   "duration_s": 96.1,
+   "scenes": 1,
+   "events": 53,
+   "dialogue_lines": 18,
+   "words_per_min": 63.1
+  },
+  {
+   "ep": 42,
+   "duration_s": 77.8,
+   "scenes": 1,
+   "events": 37,
+   "dialogue_lines": 19,
+   "words_per_min": 79.4
+  },
+  {
+   "ep": 43,
+   "duration_s": 115.0,
+   "scenes": 1,
+   "events": 87,
+   "dialogue_lines": 32,
+   "words_per_min": 88.7
+  },
+  {
+   "ep": 44,
+   "duration_s": 70.5,
+   "scenes": 2,
+   "events": 54,
+   "dialogue_lines": 20,
+   "words_per_min": 91.9
+  },
+  {
+   "ep": 45,
+   "duration_s": 121.8,
+   "scenes": 3,
+   "events": 74,
+   "dialogue_lines": 29,
+   "words_per_min": 94.6
+  },
+  {
+   "ep": 46,
+   "duration_s": 143.9,
+   "scenes": 1,
+   "events": 75,
+   "dialogue_lines": 31,
+   "words_per_min": 149.3
+  },
+  {
+   "ep": 47,
+   "duration_s": 134.0,
+   "scenes": 4,
+   "events": 70,
+   "dialogue_lines": 33,
+   "words_per_min": 132.1
+  },
+  {
+   "ep": 48,
+   "duration_s": 80.0,
+   "scenes": 2,
+   "events": 43,
+   "dialogue_lines": 21,
+   "words_per_min": 134.2
+  },
+  {
+   "ep": 49,
+   "duration_s": 144.8,
+   "scenes": 1,
+   "events": 63,
+   "dialogue_lines": 26,
+   "words_per_min": 153.0
+  },
+  {
+   "ep": 50,
+   "duration_s": 80.0,
+   "scenes": 2,
+   "events": 40,
+   "dialogue_lines": 14,
+   "words_per_min": 95.2
+  }
+ ]
+}
